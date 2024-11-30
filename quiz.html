@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Quiz App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* General Reset */
+    body, h1, p {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Body & Background */
+    body {
+      font-family: 'Montserrat', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      background-image: url('https://images.unsplash.com/photo-1529226775000-40480eaf3c87');
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    /* Main Quiz Container */
+    .quiz-container {
+      width: 90%;
+      max-width: 800px;
+      text-align: center;
+      padding: 40px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(10px);
+      transition: transform 0.5s ease;
+    }
+
+    .quiz-container:hover {
+      transform: scale(1.02);
+    }
+
+    /* Question Styling */
+    .question {
+      font-size: 2em;
+      margin-bottom: 20px;
+      color: #333;
+      font-weight: bold;
+      animation: fadeIn 1s ease-out;
+    }
+
+    /* Options buttons */
+    .options button {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      background-color: #f7f7f7;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 1.2em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .options button:hover {
+      background-color: #4CAF50;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    /* Next Button Styling */
+    .next-button {
+      margin-top: 20px;
+      padding: 15px 30px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.2em;
+      transition: all 0.3s ease;
+    }
+
+    .next-button:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+
+    /* Timer and Result Styling */
+    .timer, .result {
+      font-size: 1.2em;
+      color: #333;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    .timer {
+      color: #FF5722;
+      font-size: 1.5em;
+    }
+
+    .result {
+      font-size: 1.5em;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    /* Question Fade-In Animation */
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
+    /* Progress Bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background-color: #ddd;
+      border-radius: 4px;
+      margin-top: 15px;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background-color: #4CAF50;
+      border-radius: 4px;
+    }
+
+    /* Emoji */
+    .emoji {
+      font-size: 3em;
+      margin-top: 20px;
+      animation: bounce 1s infinite;
+    }
+
+    /* Bounce Animation for Emojis */
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-15px);
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div class="question"></div>
+    <div class="options">
+      <button class="option" data-answer="0"></button>
+      <button class="option" data-answer="1"></button>
+      <button class="option" data-answer="2"></button>
+      <button class="option" data-answer="3"></button>
+    </div>
+    <button class="next-button">Next</button>
+    <div class="timer"></div>
+    <div class="progress-bar-container">
+      <div class="progress-bar"></div>
+    </div>
+    <div class="result"></div>
+    <div class="emoji"></div>
+  </div>
+
+  <script>
+    const quizData = [
+      {
+        question: "What is the capital of France?",
+        options: ["Paris", "London", "Berlin", "Madrid"],
+        correct_answer: "Paris",
+        emoji: "🇫🇷"
+      },
+      {
+        question: "Which planet is known as the Red Planet?",
+        options: ["Earth", "Mars", "Jupiter", "Saturn"],
+        correct_answer: "Mars",
+        emoji: "🔴"
+      },
+      {
+        question: "What is the largest ocean on Earth?",
+        options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+        correct_answer: "Pacific Ocean",
+        emoji: "🌊"
+      },
+      {
+        question: "Who painted the Mona Lisa?",
+        options: ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso", "Claude Monet"],
+        correct_answer: "Leonardo da Vinci",
+        emoji: "🎨"
+      },
+      {
+        question: "Which country is known as the Land of the Rising Sun?",
+        options: ["China", "Japan", "South Korea", "Thailand"],
+        correct_answer: "Japan",
+        emoji: "🗾"
+      },
+      {
+        question: "What is the largest desert in the world?",
+        options: ["Sahara Desert", "Gobi Desert", "Kalahari Desert", "Antarctic Desert"],
+        correct_answer: "Antarctic Desert",
+        emoji: "🏜️"
+      },
+      {
+        question: "Which is the smallest country in the world?",
+        options: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
+        correct_answer: "Vatican City",
+        emoji: "🇻🇦"
+      },
+      {
+        question: "Who invented the telephone?",
+        options: ["Alexander Graham Bell", "Thomas Edison", "Nikola Tesla", "Albert Einstein"],
+        correct_answer: "Alexander Graham Bell",
+        emoji: "📞"
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let selectedAnswer = null;
+    let timer;
+    const questionElement = document.querySelector('.question');
+    const optionButtons = document.querySelectorAll('.option');
+    const resultElement = document.querySelector('.result');
+    const timerElement = document.querySelector('.timer');
+    const progressBar = document.querySelector('.progress-bar');
+    const nextButton = document.querySelector('.next-button');
+    const emojiElement = document.querySelector('.emoji');
+
+    function loadQuestion() {
+      const currentQuestion = quizData[currentQuestionIndex];
+      questionElement.innerText = currentQuestion.question;
+      emojiElement.innerText = currentQuestion.emoji;
+      optionButtons.forEach((button, index) => {
+        button.innerText = currentQuestion.options[index];
+      });
+      resultElement.innerText = '';
+      timerElement.innerText = '30';
+      progressBar.style.width = '100%';
+      selectedAnswer = null;
+      startTimer();
+    }
+
+    function startTimer() {
+      let timeLeft = 30;
+      timer = setInterval(() => {
+        timeLeft--;
+        timerElement.innerText = timeLeft;
+        progressBar.style.width = `${(timeLeft / 30) * 100}%`;
+
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          checkAnswer();
+          currentQuestionIndex++;
+          if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+          } else {
+            alert(`Quiz Over! Your score is ${score} out of ${quizData.length}.`);
+            score = 0;
+            currentQuestionIndex = 0;
+            loadQuestion();
+          }
+        }
+      }, 1000);
+    }
+
+    function checkAnswer() {
+      const correctAnswer = quizData[currentQuestionIndex].correct_answer;
+      const userAnswer = optionButtons[selectedAnswer].innerText;
+
+      if (userAnswer === correctAnswer) {
+        score++;
+        resultElement.innerText = "Correct!";
+        resultElement.style.color = '#4CAF50'; // Green for correct
+      } else {
+        resultElement.innerText = `Incorrect! The correct answer was ${correctAnswer}.`;
+        resultElement.style.color = '#FF5722'; // Red for incorrect
+      }
+    }
+
+    optionButtons.forEach((button, index) => {
+      button.addEventListener('click', () => {
+        selectedAnswer = index;
+        optionButtons.forEach(btn => btn.style.backgroundColor = ''); // Reset background color
+        button.style.backgroundColor = '#ddd'; // Highlight selected answer
+      });
+    });
+
+    nextButton.addEventListener('click', () => {
+      if (selectedAnswer === null) {
+        alert("Please select an answer before proceeding.");
+        return;
+      }
+
+      clearInterval(timer);
+      checkAnswer();
+      currentQuestionIndex++;
+
+      if (currentQuestionIndex < quizData.length) {
+        loadQuestion();
+      } else {
+        alert(`Quiz Over! Your score is ${score} out of ${quizData.length}.`);
+        score = 0;
+        currentQuestionIndex = 0;
+        loadQuestion();
+      }
+    });
+
+    loadQuestion();
+  </script>
+</body>
+</html>
